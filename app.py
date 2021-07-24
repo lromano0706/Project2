@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, request, jsonify
 from bson import ObjectId
 import pymongo
 
@@ -16,7 +16,7 @@ def index():
     # write a statement that finds all the items in the db and sets it to a variable
     # restaraunt_data = list(db.Ohio_Business.find({"categories":{"$regex":"Restaurants"}}))
     restaraunt_data = list(db.Ohio_Business.find({"name":{"$regex":"Scramblers"}}))
-    print(restaraunt_data)
+    
 
     # render an index.html template and pass it the data you retrieved from the database
     return render_template("index.html", restaraunt_data=restaraunt_data)
@@ -66,14 +66,23 @@ def threeDS():
 def fourDS():
     restaurant_data = db.Ohio_Business.find({"$and":[{"categories":{"$regex":"Restaurants"}}, {"attributes.RestaurantsPriceRange2":"4"}]})
     
-
     fourDollarSign = []
 
     for i in restaurant_data:
         i['_id'] = str(i['_id'])
         fourDollarSign.append(i)
-
+    print(fourDollarSign)
     return jsonify(fourDollarSign)
+   
+
+
+    # fourDollarSign = []
+
+    # for i in restaurant_data:
+    #     i['_id'] = str(i['_id'])
+    #     fourDollarSign.append(i)
+
+    # return jsonify(fourDollarSign)
 
 if __name__ == "__main__":
     app.run(debug=True)

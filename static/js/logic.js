@@ -1,10 +1,14 @@
 // Creating our initial map object
 // We set the longitude, latitude, and the starting zoom level
 // This gets inserted into the div with an id of 'map'
-var myMap = L.map("map", {
-  center: [35.52, -100.67],
-  zoom: 13
-});
+// function createMap(restaurants){
+  // Create the map object with options
+  var myMap = L.map("map", {
+    center: [40.4173, -82.9071],
+    zoom: 9,
+    // layers: [baseMaps, overlayMaps]
+  });
+
 
 // Adding a tile layer (the background map image) to our map
 // We use the addTo method to add objects to our map
@@ -13,23 +17,44 @@ L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
   tileSize: 512,
   maxZoom: 18,
   zoomOffset: -1,
-  id: "mapbox/satellite-v9",
+  id: "mapbox/streets-v11",
   accessToken: API_KEY
 }).addTo(myMap);
 
+// var baseMaps = {
+//   "Street Map": streetMap
+// };
 
-// // Initialize and add the map
-// function initMap() {
-//   // The location of Uluru
-//   const uluru = { lat: -25.344, lng: 131.036 };
-//   // The map, centered at Uluru
-//   const map = new google.maps.Map(document.getElementById("map"), {
-//     zoom: 4,
-//     center: uluru,
-//   });
-//   // The marker, positioned at Uluru
-//   const marker = new google.maps.Marker({
-//     position: uluru,
-//     map: map,
-//   });
-// }
+// var overlayMaps = {
+//   "Restaurants": restaurants
+// };
+
+
+
+// };
+
+function createMarkers(response) {
+  console.log(response)
+  //pull the restaurants of the response data
+  var restaurants = response;
+// Initialize an array to hold restaurant markers
+  var restaurantMarkers = [];
+// loop through the restaurant array
+for (var index = 0; index < restaurants.length; index++) {
+
+  var restaurant = restaurants[index];
+  
+  // For each restaurant, create a marker and bind a popup with the restaurant's name
+  var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude])
+  .bindPopup("<h3>" + restaurant.name + "<h3><h3>Category: " + restaurant.categories + "</h3>" )
+  .addTo(myMap);
+  // Add the marker to the restaurantMakers array
+  restaurantMarkers.push(restaurantMarker);
+// Create a layer group made fro the restaurant marker array, pass it into the createMap Function
+// L.tileLayer(restaurantMarkers);
+
+}
+
+}
+
+d3.json("http://127.0.0.1:5000/$$$$").then(createMarkers).catch(function(a){console.log(a);});
