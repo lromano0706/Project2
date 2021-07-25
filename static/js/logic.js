@@ -72,7 +72,7 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
     }
   })
 
-  map.on('overlayremove', function(eo) {
+  map.on('overlayremove', function(lyr) {
     if (lyr.name == " $ Restaurants") {
       removeData(pr1);
     }
