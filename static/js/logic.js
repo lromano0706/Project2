@@ -3,15 +3,21 @@
 // This gets inserted into the div with an id of 'map'
 
 function updateData(data) {
+  catList = [];
+
   nameList = d3.select("#restaurant-list");
   nameList.html("");
   data.forEach(function(prSets) {
     prSets.forEach(function(rests) {
       nameList.append("li").text(rests.name);
+
     })
   })
 };
 
+function catSplitter(string) {
+  string.split("")
+};
 
 function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, pr2, pr3, pr4) {
   // Adding a tile layer (the background map image) to our map
@@ -113,7 +119,7 @@ function createMarkers1(response) {
     var restaurant = restaurants[index];
     // For each restaurant, create a marker and bind a popup with the restaurant's name
 
-    var restaurantMarker = L.marker([lat, lng], {myName: restaurant.name})
+    var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude], {myName: restaurant.name})
       .bindPopup("<h3>" + restaurant.name + "</h3><hr><h5>Stars: " + restaurant.stars + "</h5><h7>Count: " + restaurant.review_count + "</h7><br><h9>Category: " + restaurant.categories + "</h9>")
       .on("click", function() {
         var infoCard = d3.select("#restaurant-info");
