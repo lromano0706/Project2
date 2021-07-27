@@ -2,13 +2,10 @@
 // We set the longitude, latitude, and the starting zoom level
 // This gets inserted into the div with an id of 'map'
 
-function addData(data) {
+function updateData(data) {
 
 };
 
-function removeData(data) {
-
-};
 
 function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, pr2, pr3, pr4) {
   // Adding a tile layer (the background map image) to our map
@@ -58,33 +55,41 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
   console.log(pr4);
 
   map.on('overlayadd', function(lyr) {
-    if (lyr.name == " $ Restaurants") {
-      addData(pr1);
+    var layerList = [];
+    if (map.hasLayer(overlayMaps[" $ Restaurants"])) {
+      layerList.push(pr1);
     }
-    else if (lyr.name == " $$ Restaurants") {
-      addData(pr2);
+    if (map.hasLayer(overlayMaps[" $$ Restaurants"])) {
+      layerList.push(pr2);
     }
-    else if (lyr.name == " $$$ Restaurants") {
-      addData(pr3);
+    if (map.hasLayer(overlayMaps[" $$$ Restaurants"])) {
+      layerList.push(pr3);
     }
-    else if (lyr.name == " $$$$ Restaurants") {
-      addData(pr4);
+    if (map.hasLayer(overlayMaps[" $$$$ Restaurants"])) {
+      layerList.push(pr4);
     }
+
+    updateData(layerList);
+    console.log(layerList);
   })
 
   map.on('overlayremove', function(lyr) {
-    if (lyr.name == " $ Restaurants") {
-      removeData(pr1);
+    var layerList = [];
+    if (map.hasLayer(overlayMaps[" $ Restaurants"])) {
+      layerList.push(pr1);
     }
-    else if (lyr.name == " $$ Restaurants") {
-      removeData(pr2);
+    if (map.hasLayer(overlayMaps[" $$ Restaurants"])) {
+      layerList.push(pr2);
     }
-    else if (lyr.name == " $$$ Restaurants") {
-      removeData(pr3);
+    if (map.hasLayer(overlayMaps[" $$$ Restaurants"])) {
+      layerList.push(pr3);
     }
-    else if (lyr.name == " $$$$ Restaurants") {
-      removeData(pr4);
+    if (map.hasLayer(overlayMaps[" $$$$ Restaurants"])) {
+      layerList.push(pr4);
     }
+
+    updateData(layerList);
+    console.log(layerList);
   })
   
 }
@@ -110,7 +115,6 @@ function createMarkers1(response) {
     var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude])
       .bindPopup("<h3>" + restaurant.name + "</h3><hr><h5>Stars: " + restaurant.stars + "</h5><h7>Count: " + restaurant.review_count + "</h7><br><h9>Category: " + restaurant.categories + "</h9>");
     // .addTo(myMap);
-    console.log(restaurant.attributes)
     if (restaurant.attributes != null) {
       if (restaurant.attributes.RestaurantsPriceRange2 == "1") {
         // Add the marker to the restaurantMarkers array
