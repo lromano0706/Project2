@@ -3,7 +3,13 @@
 // This gets inserted into the div with an id of 'map'
 
 function updateData(data) {
-
+  nameList = d3.select("#restaurant-list");
+  nameList.html("");
+  data.forEach(function(prSets) {
+    prSets.forEach(function(rests) {
+      nameList.append("li").text(rests.name);
+    })
+  })
 };
 
 
@@ -49,11 +55,6 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
     collapsed: true
   }).addTo(map);
 
-  console.log(pr1);
-  console.log(pr2);
-  console.log(pr3);
-  console.log(pr4);
-
   map.on('overlayadd', function(lyr) {
     var layerList = [];
     if (map.hasLayer(overlayMaps[" $ Restaurants"])) {
@@ -70,7 +71,6 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
     }
 
     updateData(layerList);
-    console.log(layerList);
   })
 
   map.on('overlayremove', function(lyr) {
@@ -89,13 +89,11 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
     }
 
     updateData(layerList);
-    console.log(layerList);
   })
   
 }
 // create markers for "$" Restaurants
 function createMarkers1(response) {
-  console.log(response)
   //pull the restaurants of the response data
   var restaurants = response;
   // Initialize an array to hold restaurant markers
@@ -108,13 +106,20 @@ function createMarkers1(response) {
   var pr2 = [];
   var pr3 = [];
   var pr4 = [];
+
   // loop through the restaurants array
+
   for (var index = 0; index < restaurants.length; index++) {
     var restaurant = restaurants[index];
     // For each restaurant, create a marker and bind a popup with the restaurant's name
-    var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude])
-      .bindPopup("<h3>" + restaurant.name + "</h3><hr><h5>Stars: " + restaurant.stars + "</h5><h7>Count: " + restaurant.review_count + "</h7><br><h9>Category: " + restaurant.categories + "</h9>");
-    // .addTo(myMap);
+
+    var restaurantMarker = L.marker([lat, lng], {myName: restaurant.name})
+      .bindPopup("<h3>" + restaurant.name + "</h3><hr><h5>Stars: " + restaurant.stars + "</h5><h7>Count: " + restaurant.review_count + "</h7><br><h9>Category: " + restaurant.categories + "</h9>")
+      .on("click", function() {
+        var infoCard = d3.select("#restaurant-info");
+        infoCard.html(this.options.myName);
+      });
+      // .addTo(myMap);
     if (restaurant.attributes != null) {
       if (restaurant.attributes.RestaurantsPriceRange2 == "1") {
         // Add the marker to the restaurantMarkers array
@@ -138,10 +143,6 @@ function createMarkers1(response) {
       }
     }
   }
-  console.log(restaurantMarkers1);
-  console.log(restaurantMarkers2);
-  console.log(restaurantMarkers3);
-  console.log(restaurantMarkers4);
   // Create a layer group made fro the restaurant marker array, pass it into the createMap Function
   createMap(L.layerGroup(restaurantMarkers1), L.layerGroup(restaurantMarkers2), L.layerGroup(restaurantMarkers3), L.layerGroup(restaurantMarkers4), pr1, pr2, pr3, pr4);
   // from response
