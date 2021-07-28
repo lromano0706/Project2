@@ -3,10 +3,15 @@
 // This gets inserted into the div with an id of 'map'
 
 var counts = {}
+var avgStars = 0;
 function updateData(data) {
   starList = {"1 Star": 0, "2 Stars": 0, "3 Stars": 0, "4 Stars": 0, "5 Stars": 0};
   countsCategory = [];
   nameList = d3.select("#restaurant-list");
+  var starsum = 0;
+  var avgStar = 0;
+  var restCounter = 0;
+
   nameList.html("");
   data.forEach(function (prSets) {
     prSets.forEach(function (rests) {
@@ -26,21 +31,17 @@ function updateData(data) {
       else if (rests.stars == 5) {
         starList["5 Stars"]++;
       }
-
+      starsum += rests.stars;
+      restCounter++;
     })
   })
-  
-  console.log(starList);
+ 
   // creates ;
   // for (var i = 0; i < starList.length; i++) {
   //     counts[starList[i]] = 1 + (counts[starList[i]] || 0);
   //     };
-  console.log(counts);
-  
-  countsCategory = [];
-  for (var [key, value] of Object.entries(counts)) {
-    countsCategory.push(value);
-  }
+  avgStars = starsum/restCounter;
+  console.log(avgStars);
   d3.select("#clearGraph").html("");
   buildGraph(starList);
 };
@@ -74,9 +75,9 @@ function myGauge(stars) {
           { range: [4, 5], color: 'rgba(75, 192, 192, 0.7)' },
         ],
         threshold: {
-          line: { color: "black", width: 4 },
+          line: { color: "red", width: 4 },
           thickness: 0.75,
-          value: stars
+          value: avgStars
         }
       },
     },
