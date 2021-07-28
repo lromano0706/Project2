@@ -2,23 +2,95 @@
 // We set the longitude, latitude, and the starting zoom level
 // This gets inserted into the div with an id of 'map'
 
+var counts = {}
 function updateData(data) {
-  catList = [];
-
+  starList = {"1 Star": 0, "2 Stars": 0, "3 Stars": 0, "4 Stars": 0, "5 Stars": 0};
+  countsCategory = [];
   nameList = d3.select("#restaurant-list");
   nameList.html("");
-  data.forEach(function(prSets) {
-    prSets.forEach(function(rests) {
+  data.forEach(function (prSets) {
+    prSets.forEach(function (rests) {
       nameList.append("li").text(rests.name);
+      if (rests.stars == 1 || rests.stars == 1.5) {
+        starList["1 Star"]++;
+      }
+      else if (rests.stars == 2 || rests.stars == 2.5) {
+        starList["2 Stars"]++;
+      }
+      else if (rests.stars == 3 || rests.stars == 3.5) {
+        starList["3 Stars"]++;
+      }
+      else if (rests.stars == 4 || rests.stars == 4.5) {
+        starList["4 Stars"]++;
+      }
+      else if (rests.stars == 5) {
+        starList["5 Stars"]++;
+      }
 
     })
   })
+  
+  console.log(starList);
+  // creates ;
+  // for (var i = 0; i < starList.length; i++) {
+  //     counts[starList[i]] = 1 + (counts[starList[i]] || 0);
+  //     };
+  console.log(counts);
+  
+  countsCategory = [];
+  for (var [key, value] of Object.entries(counts)) {
+    countsCategory.push(value);
+  }
+  d3.select("#clearGraph").html("");
+  buildGraph(starList);
 };
-
-function catSplitter(string) {
-  string.split("")
+function myGauge(stars) {
+  var data = [
+    {
+      domain: { x: [0, 1], y: [0, 1] },
+      type: 'indicator',
+      mode: 'gauge',
+      value: stars,
+      title: {
+        text: 'STAR <br><span style="color:grey;">REVIEW</span>',
+      },
+      gauge: {
+        axis: { range: [null, 5], tickwidth: 1, tickcolor: 'darkgrey', nticks: 6 },
+        bar: { color: 'darkgrey', thickness: 0.3 },
+        bgcolor: 'white',
+        borderwidth: 01,
+        bordercolor: 'black',
+        axes: [{
+          pointers: [{
+            type: 'Marker',
+            markerType: 'Circle'
+          }]
+        }],
+        steps: [
+          { range: [0, 1], color: 'rgba(255, 99, 132, 0.7)' },
+          { range: [1, 2], color: 'rgba(255, 159, 64, 0.7)' },
+          { range: [2, 3], color: 'rgba(255, 206, 86, 0.7)' },
+          { range: [3, 4], color: 'rgba(54, 162, 235, 0.7)' },
+          { range: [4, 5], color: 'rgba(75, 192, 192, 0.7)' },
+        ],
+        threshold: {
+          line: { color: "black", width: 4 },
+          thickness: 0.75,
+          value: stars
+        }
+      },
+    },
+  ];
+  // Layout 
+  var layout = {
+    width: 320,
+    height: 250,
+    margin: { t: 35, r: 15, l: 15, b: 0 },
+    font: { color: 'black', family: 'Arial' }
+  };
+  // Render the plot to the div tag with id 'gauge'
+  Plotly.newPlot('gauge', data, layout);
 };
-
 function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, pr2, pr3, pr4) {
   // Adding a tile layer (the background map image) to our map
   // We use the addTo method to add objects to our map
@@ -60,8 +132,7 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: true
   }).addTo(map);
-
-  map.on('overlayadd', function(lyr) {
+  map.on('overlayadd', function (lyr) {
     var layerList = [];
     if (map.hasLayer(overlayMaps[" $ Restaurants"])) {
       layerList.push(pr1);
@@ -75,11 +146,9 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
     if (map.hasLayer(overlayMaps[" $$$$ Restaurants"])) {
       layerList.push(pr4);
     }
-
     updateData(layerList);
   })
-
-  map.on('overlayremove', function(lyr) {
+  map.on('overlayremove', function (lyr) {
     var layerList = [];
     if (map.hasLayer(overlayMaps[" $ Restaurants"])) {
       layerList.push(pr1);
@@ -93,10 +162,8 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
     if (map.hasLayer(overlayMaps[" $$$$ Restaurants"])) {
       layerList.push(pr4);
     }
-
     updateData(layerList);
   })
-  
 }
 // create markers for "$" Restaurants
 function createMarkers1(response) {
@@ -107,25 +174,28 @@ function createMarkers1(response) {
   var restaurantMarkers2 = [];
   var restaurantMarkers3 = [];
   var restaurantMarkers4 = [];
-
   var pr1 = [];
   var pr2 = [];
   var pr3 = [];
   var pr4 = [];
-
+  console.log(pr4)
   // loop through the restaurants array
-
   for (var index = 0; index < restaurants.length; index++) {
     var restaurant = restaurants[index];
     // For each restaurant, create a marker and bind a popup with the restaurant's name
-
-    var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude], {myName: restaurant.name})
+    var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude], { myName: restaurant.name, myCity: restaurant.city, myReviewCount: restaurant.review_count, myStars: restaurant.stars })
       .bindPopup("<h3>" + restaurant.name + "</h3><hr><h5>Stars: " + restaurant.stars + "</h5><h7>Count: " + restaurant.review_count + "</h7><br><h9>Category: " + restaurant.categories + "</h9>")
-      .on("click", function() {
-        var infoCard = d3.select("#restaurant-info");
-        infoCard.html(this.options.myName);
+      .on("click", function () {
+        var infoCard1 = d3.select(".output1");
+        var infoCard2 = d3.select(".output2");
+        var infoCard3 = d3.select(".output3");
+        infoCard1.html(this.options.myName);
+        infoCard2.html(this.options.myCity);
+        infoCard3.html(this.options.myReviewCount);
+        console.log(this.options.myStars);
+        myGauge(this.options.myStars);
       });
-      // .addTo(myMap);
+    // .addTo(myMap);
     if (restaurant.attributes != null) {
       if (restaurant.attributes.RestaurantsPriceRange2 == "1") {
         // Add the marker to the restaurantMarkers array
@@ -156,4 +226,40 @@ function createMarkers1(response) {
   // var button = d3.select("#navbarDropdown");
 }
 d3.json("http://127.0.0.1:5000/data").then(createMarkers1).catch(function (a) { console.log(a); });
-
+// created Star Rating Categories Graph
+function buildGraph(starList) {
+  d3.select("#clearGraph").html("<canvas id='myChart'></canvas>");
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: "Rounded to Whole Star",
+        data: starList,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+          'rgba(255, 206, 86, 0.7)',
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(75, 192, 192, 0.7)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(75, 192, 192, 1)',
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  })
+};
