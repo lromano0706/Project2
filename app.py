@@ -23,9 +23,9 @@ def index():
 
 
 
-@app.route("/$")
-def oneDS():
-    restaurant_data = db.Ohio_Business.find({"$and":[{"categories":{"$regex":"Restaurants"}}, {"attributes.RestaurantsPriceRange2":"1"}]})
+@app.route("/data")
+def data():
+    restaurant_data = db.Ohio_Business.find({"categories":{"$regex":"Restaurants"}}).limit(1000)
     
 
     oneDollarSign = []
@@ -36,53 +36,6 @@ def oneDS():
 
     return jsonify(oneDollarSign)
 
-@app.route("/$$")
-def twoDS():
-    restaurant_data = db.Ohio_Business.find({"$and":[{"categories":{"$regex":"Restaurants"}}, {"attributes.RestaurantsPriceRange2":"2"}]})
-    
-
-    twoDollarSign = []
-
-    for i in restaurant_data:
-        i['_id'] = str(i['_id'])
-        twoDollarSign.append(i)
-
-    return jsonify(twoDollarSign)
-    
-@app.route("/$$$")
-def threeDS():
-    restaurant_data = db.Ohio_Business.find({"$and":[{"categories":{"$regex":"Restaurants"}}, {"attributes.RestaurantsPriceRange2":"3"}]})
-    
-
-    threeDollarSign = []
-
-    for i in restaurant_data:
-        i['_id'] = str(i['_id'])
-        threeDollarSign.append(i)
-
-    return jsonify(threeDollarSign)
-
-@app.route("/$$$$")
-def fourDS():
-    restaurant_data = db.Ohio_Business.find({"$and":[{"categories":{"$regex":"Restaurants"}}, {"attributes.RestaurantsPriceRange2":"4"}]})
-    
-    fourDollarSign = []
-
-    for i in restaurant_data:
-        i['_id'] = str(i['_id'])
-        fourDollarSign.append(i)
-    print(fourDollarSign)
-    return jsonify(fourDollarSign)
-   
-
-
-    # fourDollarSign = []
-
-    # for i in restaurant_data:
-    #     i['_id'] = str(i['_id'])
-    #     fourDollarSign.append(i)
-
-    # return jsonify(fourDollarSign)
 
 if __name__ == "__main__":
     app.run(debug=True)
