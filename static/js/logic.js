@@ -4,12 +4,51 @@
 
 var counts = {}
 var avgStars = 0;
+
+d3.json("http://127.0.0.1:5000/data").then(createMarkers1).catch(function (a) { console.log(a); });
+
+function buildGraph(starList) {
+  d3.select("#clearGraph").html("<canvas id='myChart'></canvas>");
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: "Rounded to Whole Star",
+        data: starList,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+          'rgba(255, 206, 86, 0.7)',
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(75, 192, 192, 0.7)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(75, 192, 192, 1)',
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  })
+};
+
 function updateData(data) {
   starList = {"1 Star": 0, "2 Stars": 0, "3 Stars": 0, "4 Stars": 0, "5 Stars": 0};
   countsCategory = [];
   nameList = d3.select("#restaurant-list");
   var starsum = 0;
-  var avgStar = 0;
   var restCounter = 0;
 
   nameList.html("");
@@ -36,15 +75,12 @@ function updateData(data) {
     })
   })
  
-  // creates ;
-  // for (var i = 0; i < starList.length; i++) {
-  //     counts[starList[i]] = 1 + (counts[starList[i]] || 0);
-  //     };
   avgStars = starsum/restCounter;
   console.log(avgStars);
   d3.select("#clearGraph").html("");
   buildGraph(starList);
 };
+
 function myGauge(stars) {
   var data = [
     {
@@ -133,6 +169,8 @@ function createMap(restaurants1, restaurants2, restaurants3, restaurants4, pr1, 
   L.control.layers(baseMaps, overlayMaps, {
     collapsed: true
   }).addTo(map);
+
+  // Event Listeners for the layer options
   map.on('overlayadd', function (lyr) {
     var layerList = [];
     if (map.hasLayer(overlayMaps[" $ Restaurants"])) {
@@ -183,7 +221,8 @@ function createMarkers1(response) {
   // loop through the restaurants array
   for (var index = 0; index < restaurants.length; index++) {
     var restaurant = restaurants[index];
-    // For each restaurant, create a marker and bind a popup with the restaurant's name
+    // For each restaurant, create a marker, bind a popup with the restaurant's name, 
+    // and populate other fields with restaurant info
     var restaurantMarker = L.marker([restaurant.latitude, restaurant.longitude], { myName: restaurant.name, myCity: restaurant.city, myReviewCount: restaurant.review_count, myStars: restaurant.stars })
       .bindPopup("<h3>" + restaurant.name + "</h3><hr><h5>Stars: " + restaurant.stars + "</h5><h7>Count: " + restaurant.review_count + "</h7><br><h9>Category: " + restaurant.categories + "</h9>")
       .on("click", function () {
@@ -196,25 +235,22 @@ function createMarkers1(response) {
         console.log(this.options.myStars);
         myGauge(this.options.myStars);
       });
-    // .addTo(myMap);
+
+    // grab and store markers and individual restaurant info
     if (restaurant.attributes != null) {
       if (restaurant.attributes.RestaurantsPriceRange2 == "1") {
-        // Add the marker to the restaurantMarkers array
         restaurantMarkers1.push(restaurantMarker);
         pr1.push(restaurant);
       }
       else if (restaurant.attributes.RestaurantsPriceRange2 == "2") {
-        // Add the marker to the restaurantMarkers array
         restaurantMarkers2.push(restaurantMarker);
         pr2.push(restaurant);
       }
       else if (restaurant.attributes.RestaurantsPriceRange2 == "3") {
-        // Add the marker to the restaurantMarkers array
         restaurantMarkers3.push(restaurantMarker);
         pr3.push(restaurant);
       }
       else if (restaurant.attributes.RestaurantsPriceRange2 == "4") {
-        // Add the marker to the restaurantMarkers array
         restaurantMarkers4.push(restaurantMarker);
         pr4.push(restaurant);
       }
@@ -222,45 +258,6 @@ function createMarkers1(response) {
   }
   // Create a layer group made fro the restaurant marker array, pass it into the createMap Function
   createMap(L.layerGroup(restaurantMarkers1), L.layerGroup(restaurantMarkers2), L.layerGroup(restaurantMarkers3), L.layerGroup(restaurantMarkers4), pr1, pr2, pr3, pr4);
-  // from response
-  // var tableData = response
-  // var button = d3.select("#navbarDropdown");
 }
-d3.json("http://127.0.0.1:5000/data").then(createMarkers1).catch(function (a) { console.log(a); });
+
 // created Star Rating Categories Graph
-function buildGraph(starList) {
-  d3.select("#clearGraph").html("<canvas id='myChart'></canvas>");
-  var ctx = document.getElementById('myChart').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: [],
-      datasets: [{
-        label: "Rounded to Whole Star",
-        data: starList,
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(255, 159, 64, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(75, 192, 192, 0.7)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(75, 192, 192, 1)',
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  })
-};
